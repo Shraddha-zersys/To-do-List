@@ -1,39 +1,52 @@
 const inputBox = document.getElementById("input-box");
 const listContainer = document.getElementById("list-container");
 
-function addTask() {
+function saveDataAsync(data) {
+  return new Promise((resolve) => {
+    localStorage.setItem("data", data);
+    resolve();
+  });
+}
+
+function loadDataAsync() {
+  return new Promise((resolve) => {
+    const data = localStorage.getItem("data");
+    resolve(data);
+  });
+}
+
+async function addTask() {
   if (inputBox.value === "") {
     alert("You must write something!");
   } else {
     let li = document.createElement("li");
     li.innerHTML = inputBox.value;
     listContainer.appendChild(li);
+
     let span = document.createElement("span");
     span.innerHTML = "\u00d7";
     li.appendChild(span);
   }
   inputBox.value = "";
-  saveData();
+  await saveDataAsync(listContainer.innerHTML);
 }
 
 listContainer.addEventListener(
   "click",
-  function (e) {
+  async function (e) {
     if (e.target.tagName === "LI") {
       e.target.classList.toggle("checked");
-      saveData()
     } else if (e.target.tagName === "SPAN") {
       e.target.parentElement.remove();
-      saveData();
     }
+    await saveDataAsync(listContainer.innerHTML);
   },
   false
 );
 
-function saveData() {
-  localStorage.setItem("data", listContainer.innerHTML);
+async function showTask() {
+  const data = await loadDataAsync();
+  listContainer.innerHTML = data || "";
 }
-function showTask() {
-  listContainer.innerHTML = localStorage.getItem("data");
-}
+
 showTask();
